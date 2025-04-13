@@ -53,9 +53,54 @@ Once your bot is running, you can interact with it using these commands:
 
 You can extend the bot's functionality by adding more commands and features in the `index.js` file.
 
-## Deployment (Optional)
+## Production Deployment on Render
 
-For production deployment, uncomment the webhook section in `index.js` and set your webhook URL.
+### 1. Prepare for Deployment
+
+1. Make sure your code is pushed to a GitHub repository
+2. Create an account on [Render](https://render.com/) if you don't have one
+
+### 2. Deploy to Render
+
+1. In the Render dashboard, click "New" and select "Web Service"
+2. Connect your GitHub repository
+3. Configure the web service:
+   - **Name**: Your bot name (e.g., "my-telegram-bot")
+   - **Runtime**: Node
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm run prod`
+   - **Plan**: Free (or select a paid plan for better performance)
+
+### 3. Set Environment Variables
+
+In the Render dashboard, add the following environment variables:
+
+```
+TELEGRAM_BOT_TOKEN=your_bot_token
+WEBHOOK_URL=https://your-app-name.onrender.com/webhook
+NODE_ENV=production
+PORT=10000
+```
+
+### 4. Set Up the Webhook
+
+After your bot is deployed, register the webhook with Telegram by visiting:
+
+```
+https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook?url=https://your-app-name.onrender.com/webhook
+```
+
+Replace `<YOUR_BOT_TOKEN>` with your actual bot token and `your-app-name` with your Render app name.
+
+### 5. Verify Webhook Setup
+
+Check if your webhook is properly set by visiting:
+
+```
+https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getWebhookInfo
+```
+
+You should see a response confirming that your webhook is active and pointing to your Render URL.
 
 ## License
 

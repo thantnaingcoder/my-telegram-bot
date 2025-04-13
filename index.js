@@ -15,10 +15,11 @@ app.use(express.urlencoded({ extended: true }));
 // Initialize Telegram bot
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 
-// Set up webhook for production (uncomment when deploying)
-// const WEBHOOK_URL = 'your-webhook-url';
-// bot.telegram.setWebhook(WEBHOOK_URL);
-// app.use(bot.webhookCallback('/webhook'));
+// Set up webhook for production
+const WEBHOOK_URL = process.env.WEBHOOK_URL || 'https://my-telegram-bot-z47o.onrender.com/webhook';
+
+// Use webhook in production, polling in development
+// This will be configured at the bottom of the file
 
 // Basic bot commands
 bot.start((ctx) => {
@@ -101,14 +102,20 @@ app.get('/', (req, res) => {
   res.send('Telegram Bot Server is running!');
 });
 
-// Start bot
+// Configure webhook endpoint for Telegram
+app.post('/webhook', (req, res) => {
+  bot.handleUpdate(req.body, res);
+});
+
+// Start bot based on environment
 if (process.env.NODE_ENV === 'production') {
   // Webhook mode for production
+  bot.telegram.setWebhook(WEBHOOK_URL);
   console.log('Bot is running in webhook (production) mode');
 } else {
   // Polling mode for development
-  console.log('Bot is running in polling (development) mode');
   bot.launch();
+  console.log('Bot is running in polling (development) mode');
 }
 
 // Enable graceful stop
@@ -118,4 +125,5 @@ process.once('SIGTERM', () => bot.stop('SIGTERM'));
 // Start Express server
 app.listen(port, () => {
   console.log(`Express server is running on port ${port}`);
+  console.log(`Webhook URL: ${WEBHOOK_URL}`);
 });
